@@ -1,0 +1,16 @@
+# Demo-only roster (scripts/demo_fixture_run.py). Sponsor active, cap 9 in
+# demo weights so the §6 "3 more not shown" line exercises for real.
+# All identities here are fictional placeholders.
+defaults:
+  mail_platform: m365
+  timezone: America/New_York
+people:
+  - {key: sponsor, full_name: Sponsor Example, email: sponsor@acme.example.com,
+     slack_user_id: U_EXAMPLE_SPONSOR, jira_account_id: demo, timezone: America/Chicago, active: true}
+ops:
+  brief_mailbox: brief@acme.example.com
+  alert_slack_user_id: U_EXAMPLE
+  send_time_local: "06:15"
+  send_timezone: America/New_York
+  send_days: [mon, tue, wed, thu, fri]
+jira_projects: [PROJ]

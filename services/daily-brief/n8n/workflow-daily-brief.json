@@ -1,0 +1,47 @@
+{
+  "name": "Accountability Brief — 6:15am ET weekdays",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            { "field": "cronExpression", "expression": "15 6 * * 1-5" }
+          ]
+        }
+      },
+      "id": "schedule-615",
+      "name": "6:15am ET Mon-Fri",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.1,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://brief:8000/run/daily",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "Authorization", "value": "=Bearer {{ $env.SERVICE_TOKEN }}" }
+          ]
+        },
+        "options": { "timeout": 900000 }
+      },
+      "id": "run-daily",
+      "name": "Run daily briefs",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [480, 300]
+    }
+  ],
+  "connections": {
+    "6:15am ET Mon-Fri": {
+      "main": [[{ "node": "Run daily briefs", "type": "main", "index": 0 }]]
+    }
+  },
+  "settings": {
+    "timezone": "America/New_York",
+    "errorWorkflow": "Accountability Brief — error alert"
+  },
+  "active": false
+}

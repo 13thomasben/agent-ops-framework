@@ -1,0 +1,22 @@
+# Demo weights: identical to production except max_items 9, so the fixture
+# set (12 A–C items) reproduces the spec §6 shape including "3 more not shown."
+response_windows_business_days:
+  external_email: 1
+  internal_dm: 1
+  internal_email: 2
+  ticket: 3
+  vendor_email: 2
+score:
+  days_open_weight: 10
+  counterparty_class: {customer: 30, lender: 30, oem: 30, internal: 15, unknown: 10, vendor: 5}
+  deal_linkage_bonus: 20
+  seniority_bonus: 15
+  repeat_ask_bonus: 25
+named_active_deals: [Northwind, Litware, Wingtip, Fabrikam]
+leadership: [sponsor@acme.example.com]
+brief:
+  max_items: 9
+  lookback_days: {email_inbound: 21, slack_inbound: 14, outbound: 21}
+  jira_stale_days: 7
+  min_confidence: 0.6
+  min_words_for_closure: 5

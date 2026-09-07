@@ -1,0 +1,45 @@
+{
+  "name": "Accountability Brief — reply-to-close poller",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [{ "field": "minutes", "minutesInterval": 10 }]
+        }
+      },
+      "id": "poll-10m",
+      "name": "Every 10 minutes",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.1,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://brief:8000/run/reply-close",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "Authorization", "value": "=Bearer {{ $env.SERVICE_TOKEN }}" }
+          ]
+        },
+        "options": { "timeout": 120000 }
+      },
+      "id": "run-reply-close",
+      "name": "Process close replies",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [480, 300]
+    }
+  ],
+  "connections": {
+    "Every 10 minutes": {
+      "main": [[{ "node": "Process close replies", "type": "main", "index": 0 }]]
+    }
+  },
+  "settings": {
+    "timezone": "America/New_York",
+    "errorWorkflow": "Accountability Brief — error alert"
+  },
+  "active": false
+}

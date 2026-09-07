@@ -1,0 +1,67 @@
+{
+  "name": "Accountability Brief — error alert",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "err-trigger",
+      "name": "On workflow error",
+      "type": "n8n-nodes-base.errorTrigger",
+      "typeVersion": 1,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://slack.com/api/conversations.open",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "Authorization", "value": "=Bearer {{ $env.SLACK_BOT_TOKEN }}" },
+            { "name": "Content-Type", "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={ \"users\": \"{{ $env.ALERT_SLACK_USER_ID }}\" }",
+        "options": {}
+      },
+      "id": "open-dm",
+      "name": "Open DM with owner",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://slack.com/api/chat.postMessage",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "Authorization", "value": "=Bearer {{ $env.SLACK_BOT_TOKEN }}" },
+            { "name": "Content-Type", "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={ \"channel\": \"{{ $json.channel.id }}\", \"text\": \":rotating_light: n8n workflow *{{ $json.workflow?.name || $execution.id }}* failed — the brief service did not answer or errored. Check `docker compose logs brief n8n` on the box.\" }",
+        "options": {}
+      },
+      "id": "post-alert",
+      "name": "DM the failure",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [680, 300]
+    }
+  ],
+  "connections": {
+    "On workflow error": {
+      "main": [[{ "node": "Open DM with owner", "type": "main", "index": 0 }]]
+    },
+    "Open DM with owner": {
+      "main": [[{ "node": "DM the failure", "type": "main", "index": 0 }]]
+    }
+  },
+  "settings": { "timezone": "America/New_York" },
+  "active": false
+}

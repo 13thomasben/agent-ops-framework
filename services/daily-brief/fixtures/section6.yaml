@@ -1,0 +1,75 @@
+# Fixture data mirroring the build brief's §6 example (one sponsor's morning),
+# used by scripts/demo_fixture_run.py to prove the pipeline end to end with
+# no external credentials. days_ago drives first_seen relative to run day.
+# All people and companies here are fictional.
+items:
+  # --- lands in BLOCKING ---
+  - {block: A, source: email, source_id: conv-northwind-msa, days_ago: 4, repeat_count: 2,
+     ask_summary: "Northwind MSA signature routing", counterparty: "Legal Lead <legal@acme.example.com>",
+     counterparty_class: internal, is_blocking: true,
+     permalink: "https://outlook.office.com/mail/deeplink/northwind-msa"}
+  - {block: B, source: slack, source_id: "D0AAA:1753.0001", days_ago: 6,
+     ask_summary: "Product lead needs the Product Roadmap Confluence page shared", counterparty: "Product Lead",
+     counterparty_class: internal, is_blocking: true,
+     permalink: "https://acme.slack.com/archives/D0AAA/p17530001"}
+  - {block: C, source: jira, source_id: PROJ-101, days_ago: 9, stale: true, is_blocking: true,
+     ask_summary: "PROJ-101 awaiting your acceptance criteria",
+     counterparty_class: internal,
+     permalink: "https://acme.atlassian.net/browse/PROJ-101"}
+  # --- lands in OVERDUE ---
+  - {block: A, source: email, source_id: conv-contoso, days_ago: 4,
+     ask_summary: "Contoso Capital intro call scheduling — three times proposed", counterparty: "Contoso Capital <partners@contoso.example.com>",
+     counterparty_class: lender,
+     permalink: "https://outlook.office.com/mail/deeplink/contoso"}
+  - {block: B, source: slack, source_id: "D0BBB:1752.0002", days_ago: 5,
+     ask_summary: "New hire 30-day check-in — sit in?", counterparty: "People Ops Lead",
+     counterparty_class: internal,
+     permalink: "https://acme.slack.com/archives/D0BBB/p17520002"}
+  # --- lands in TODAY ---
+  - {block: A, source: email, source_id: conv-fabrikam-deck, days_ago: 1, deadline_today: true,
+     ask_summary: "Fabrikam deck final review before 2:00pm block", counterparty: "Team Lead <lead@acme.example.com>",
+     counterparty_class: internal,
+     permalink: "https://outlook.office.com/mail/deeplink/fabrikam"}
+  # --- lands in AGING ---
+  - {block: A, source: email, source_id: conv-tailspin, days_ago: 2,
+     ask_summary: "Tailspin billing dispute response", counterparty: "Tailspin Software <ar@tailspin.example.com>",
+     counterparty_class: vendor,
+     permalink: "https://outlook.office.com/mail/deeplink/tailspin"}
+  - {block: A, source: email, source_id: conv-wingtip, days_ago: 2,
+     ask_summary: "Wingtip Trucks follow-up from last week's call", counterparty: "Wingtip Trucks <hello@wingtip.example.com>",
+     counterparty_class: customer,
+     permalink: "https://outlook.office.com/mail/deeplink/wingtip"}
+  - {block: C, source: jira, source_id: PROJ-202, days_ago: 1,
+     ask_summary: "PROJ-202 customer escalation, Litware",
+     counterparty_class: internal,
+     permalink: "https://acme.atlassian.net/browse/PROJ-202"}
+  # --- pushed past the demo cap (9) → "3 more not shown." ---
+  - {block: B, source: slack, source_id: "C0CCC:1751.0003", days_ago: 1,
+     ask_summary: "Trade show booth staffing question", counterparty: "Team Lead",
+     counterparty_class: internal,
+     permalink: "https://acme.slack.com/archives/C0CCC/p17510003"}
+  - {block: A, source: email, source_id: conv-webinar-quote, days_ago: 1,
+     ask_summary: "Quote request for the dealer webinar recap", counterparty: "Marketing <marketing@acme.example.com>",
+     counterparty_class: internal,
+     permalink: "https://outlook.office.com/mail/deeplink/webinar"}
+  - {block: C, source: jira, source_id: PROJ-303, days_ago: 1,
+     ask_summary: "PROJ-303 sandbox refresh sign-off",
+     counterparty_class: internal,
+     permalink: "https://acme.atlassian.net/browse/PROJ-303"}
+  # --- Block D: WAITING ON OTHERS (uncapped, compact) ---
+  - {block: D, source: slack, source_id: "D0DDD:1750.0004#d", days_ago: 6,
+     ask_summary: "Litware lender portal pricing", counterparty: "Litware Account Manager",
+     counterparty_class: customer,
+     permalink: "https://acme.slack.com/archives/D0DDD/p17500004"}
+  - {block: D, source: email, source_id: conv-wingtip-health#d, days_ago: 4,
+     ask_summary: "Wingtip Trucks health summary", counterparty: "Wingtip Ops Manager <ops@wingtip.example.com>",
+     counterparty_class: customer,
+     permalink: "https://outlook.office.com/mail/deeplink/wingtip-health"}
+  - {block: D, source: email, source_id: conv-northwind-signature#d, days_ago: 3,
+     ask_summary: "Signature timeline", counterparty: "Northwind Procurement <procurement@northwind.example.com>",
+     counterparty_class: customer,
+     permalink: "https://outlook.office.com/mail/deeplink/northwind-signature"}
+  - {block: D, source: slack, source_id: "D0EEE:1749.0005#d", days_ago: 2,
+     ask_summary: "Field Tool design partner shortlist", counterparty: "Product Lead",
+     counterparty_class: internal,
+     permalink: "https://acme.slack.com/archives/D0EEE/p17490005"}

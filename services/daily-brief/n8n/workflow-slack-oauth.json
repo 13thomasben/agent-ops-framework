@@ -1,0 +1,55 @@
+{
+  "name": "Accountability Brief — Slack OAuth redirect",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "GET",
+        "path": "slack/oauth/callback",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "oauth-webhook",
+      "name": "Slack redirect",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1.1,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://brief:8000/oauth/slack/exchange",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={ \"code\": \"{{ $json.query.code }}\" }",
+        "options": {}
+      },
+      "id": "exchange",
+      "name": "Exchange code",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "=Connected: {{ $json.connected }}. Your daily brief can now read your Slack as you. You can close this tab.",
+        "options": {}
+      },
+      "id": "respond",
+      "name": "Confirm to user",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [680, 300]
+    }
+  ],
+  "connections": {
+    "Slack redirect": {
+      "main": [[{ "node": "Exchange code", "type": "main", "index": 0 }]]
+    },
+    "Exchange code": {
+      "main": [[{ "node": "Confirm to user", "type": "main", "index": 0 }]]
+    }
+  },
+  "settings": { "timezone": "America/New_York" },
+  "active": false
+}
