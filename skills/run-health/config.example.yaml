@@ -1,0 +1,120 @@
+# run-health registry — the whole behavior of the skill lives here.
+#
+# EXAMPLE config for the public showcase: five fictionalized watched entries and
+# two unwatched ones. The real registry carries one entry per skill in the repo.
+#
+# One entry per watched skill. If a skill's cadence changes in its SKILL.md and
+# not here, this skill goes wrong in the QUIET direction: it checks the wrong
+# window, finds evidence, and reports healthy. Update both in the same change.
+#
+# Cadences are taken from _shared/thread-feedback.md, each skill's own
+# **Schedule:** line, and tracker/inventory.csv. Where those disagree, the
+# skill's own SKILL.md wins and the disagreement is noted.
+#
+# expected_by is ALWAYS America/New_York, even for a skill that reports in
+# another timezone (bdr-call-coaching writes PT; its window is stored ET).
+# days: daily | weekdays | mon|tue|wed|thu|fri|sat|sun
+# A window counts as closed 30 minutes after expected_by (grace, see Step 1).
+
+sweep:
+  expected_by: "18:30"
+  days: daily
+  # After the latest watched run (call-intel, 17:00 ET) plus time to post and commit.
+
+coverage:
+  # Skills deliberately not watched, with the reason. Anything in channels.json
+  # that is neither here nor in `skills` below is reported as unwatched (Step 3).
+  intentionally_unwatched:
+    - skill: webagent
+      reason: Building block. No schedule and no delivery of its own.
+    - skill: run-health
+      reason: >-
+        Itself. It cannot detect its own absence — if its routine dies, nothing
+        reports it and #applied-ai simply goes quiet. `state/sweeps.jsonl` is
+        where to confirm it is still sweeping. Listed explicitly so the gap is
+        visible rather than looking like an oversight.
+
+skills:
+  - skill: acme-call-intel
+    cadence: daily 5:00 PM ET
+    expected_by: "17:00"
+    days: daily
+    evidence:
+      channel: sales_prospect-meetings
+      channel_id: C_EXAMPLE_SALES
+      message_shapes:
+        - "New Deal"
+        - "Follow-up"
+        # Its reports are titled "<Deal name> — <meeting type>"; match on the
+        # deal-and-type shape rather than a fixed prefix.
+      clean_run_notice: true       # posts an ambiguous-call / no-calls note to #applied-ai
+      commit_paths:
+        - skills/acme-call-intel/data/
+
+  - skill: bdr-call-coaching
+    cadence: daily 4:15 PM PT (7:15 PM ET)
+    expected_by: "19:15"
+    days: daily
+    note: >-
+      Window closes AFTER the 18:30 sweep, so a given day's run is checked by the
+      NEXT evening's sweep, not the same one. That is correct and intentional —
+      do not "fix" it by moving the sweep later, which would delay every other
+      skill's alert by a day. It means a bdr miss surfaces ~23h later than the rest.
+    evidence:
+      channel: bdr-coaching
+      channel_id: C_EXAMPLE_BDR
+      message_shapes:
+        - "Call effectiveness"
+        - "List quality"
+      clean_run_notice: false      # skips the post entirely on a zero-dial day (e.g. holiday)
+      commit_paths:
+        - skills/bdr-call-coaching/state/
+    caveat: >-
+      Silent-when-no-dials means absence is ambiguous on holidays and quiet days.
+      The commit signal is the tiebreaker: Step 0 still runs and still commits
+      state even when no report posts. If neither signal appears, report it —
+      and let a human mute it as expected.
+
+  - skill: acme-ticket-daily-check
+    cadence: weekdays 8:00 AM ET
+    expected_by: "08:00"
+    days: weekdays
+    evidence:
+      channel: customer-support-reporting
+      channel_id: C_EXAMPLE_SUPPORT
+      message_shapes:
+        - "Daily ticket check"
+      clean_run_notice: true       # posts "ran clean" to #applied-ai — documented on the applied-ai canvas
+      commit_paths:
+        - skills/acme-ticket-daily-check/state/
+
+  - skill: slack-thread-hygiene
+    cadence: weekdays 3:00 PM ET
+    expected_by: "15:00"
+    days: weekdays
+    evidence:
+      channel: applied-ai
+      channel_id: C_EXAMPLE_APPLIED_AI
+      message_shapes:
+        - "nudge"
+        - "No nudges this run"
+      clean_run_notice: true       # "No nudges this run." IS its clean-run output
+      commit_paths: []
+    caveat: >-
+      README records this routine as not firing on its documented cadence
+      (missed weekdays, start times sliding). Watching it is the point: that
+      drift was found by hand and should have been found here.
+
+  - skill: customer-support-scorecard
+    cadence: weekly, Monday
+    expected_by: "12:00"
+    days: mon
+    evidence:
+      channel: customer-success
+      channel_id: C_EXAMPLE_CS
+      message_shapes:
+        - "support scorecard"
+        - "Customer support scorecard"
+      clean_run_notice: true
+      commit_paths:
+        - skills/customer-support-scorecard/
