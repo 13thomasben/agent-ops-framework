@@ -1,0 +1,53 @@
+# Roster and identity map — checklist item 1.
+# Everything downstream keys off this file. One entry per person.
+# Copy to roster.yaml and fill in real values (roster.yaml is gitignored in a
+# real deployment — it names people).
+#
+# active: false until (a) their credentials exist and (b) their rollout week
+# arrives. Onboarding a person is exactly one flag flip here plus their Slack
+# OAuth consent — nothing else changes.
+#
+# mail_platform: every acme.example.com mailbox is Microsoft 365
+#   (one tenant, no Gmail split — checklist item 3).
+# jira_account_id: fill via docs/RUNBOOK.md step 6
+#   (GET /rest/api/3/user/search?query=<email> with the service token).
+
+defaults:
+  mail_platform: m365
+  timezone: America/New_York
+
+people:
+  - key: sponsor
+    full_name: Sponsor Example
+    email: sponsor@acme.example.com
+    slack_user_id: U_EXAMPLE_SPONSOR
+    jira_account_id: TBD        # RUNBOOK step 6
+    timezone: America/Chicago
+    active: false               # WEEK 1 pilot — flip on after M365 admin consent + their Slack OAuth
+
+  - key: lead
+    full_name: Team Lead Example
+    email: lead@acme.example.com
+    slack_user_id: U_EXAMPLE_LEAD
+    jira_account_id: TBD
+    timezone: America/Chicago
+    active: false               # WEEK 2 — do not enable until the week-1 accuracy bar holds
+
+  - key: owner
+    full_name: Service Owner Example
+    email: owner@acme.example.com
+    slack_user_id: U_EXAMPLE
+    jira_account_id: TBD
+    timezone: America/New_York
+    active: false               # builder — enable for pre-week-1 dry runs against yourself
+
+# Delivery and operations identities
+ops:
+  brief_mailbox: brief@acme.example.com   # shared mailbox: sends every brief, receives reply-to-close
+  alert_slack_user_id: U_EXAMPLE          # service owner — failure + zero-items-anomaly DMs land here
+  send_time_local: "06:15"
+  send_timezone: America/New_York         # spec: 6:15am ET flat for all users, Mon–Fri
+  send_days: [mon, tue, wed, thu, fri]
+
+# Jira projects in scope for Block C (spec §2)
+jira_projects: [PROJ]

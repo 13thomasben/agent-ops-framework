@@ -1,0 +1,25 @@
+# Slack app manifest — create the app at api.slack.com/apps → "From an app manifest".
+# After creation: install to workspace (gets the bot token), copy Client ID /
+# Client Secret / Bot Token into .env, and set the real redirect URL below.
+display_information:
+  name: Accountability Brief
+  description: Reads each consenting user's own open loops for the daily brief. Sends ops alerts.
+  background_color: "#1f2a44"
+oauth_config:
+  redirect_urls:
+    - https://ops.acme.example.com/webhook/slack/oauth/callback   # ← your n8n webhook URL (RUNBOOK step 8)
+  scopes:
+    user:                 # granted per user at consent — what the pulls run as
+      - channels:history
+      - groups:history
+      - im:history
+      - mpim:history
+      - search:read
+      - users:read
+    bot:                  # workspace-level — alerts only, cannot read anyone's DMs
+      - chat:write
+      - im:write
+settings:
+  org_deploy_enabled: false
+  socket_mode_enabled: false
+  token_rotation_enabled: false   # keep user tokens non-expiring for v1

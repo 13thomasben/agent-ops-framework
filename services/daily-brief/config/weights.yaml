@@ -1,0 +1,43 @@
+# Scorer configuration — checklist item 8.
+# Weights live HERE, not in code, because they will change every day for the
+# first two weeks. Every change gets a dated line in docs/TUNING-LOG.md so we
+# can tell which change caused which improvement (spec §9).
+
+# Overdue thresholds (spec §4), in BUSINESS days, by counterparty class + source.
+response_windows_business_days:
+  external_email: 1      # customer / lender / OEM email
+  internal_dm: 1
+  internal_email: 2
+  ticket: 3
+  vendor_email: 2
+
+score:
+  days_open_weight: 10         # weighted most heavily, per spec
+  counterparty_class:          # class rank inside a tier
+    customer: 30
+    lender: 30
+    oem: 30
+    internal: 15
+    unknown: 10
+    vendor: 5
+  deal_linkage_bonus: 20       # item mentions a named active deal
+  seniority_bonus: 15          # sender is in `leadership`
+  repeat_ask_bonus: 25         # PER repeat beyond the first — second and third asks escalate hard
+
+# Deal/account linkage matching (case-insensitive substring against
+# counterparty + ask summary). Service owner maintains; start with the anchors.
+named_active_deals: []         # e.g. [Northwind, Contoso, Fabrikam]
+
+# Sender seniority
+leadership:
+  - sponsor@acme.example.com
+
+brief:
+  max_items: 15                # cap across blocks A–C; D is uncapped but compact
+  lookback_days:
+    email_inbound: 21          # spec §2 block A
+    slack_inbound: 14          # spec §2 block B
+    outbound: 21               # spec §2 block D
+  jira_stale_days: 7           # block C stale flag
+  min_confidence: 0.6          # classifier drop threshold — drop, never guess
+  min_words_for_closure: 5     # letters-bearing words required for a reply to count as closure

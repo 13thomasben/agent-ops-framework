@@ -1,0 +1,50 @@
+# Pre-classifier exclusions. Two layers, applied in this order:
+#
+#   1. do_not_ingest — hard privacy boundaries (legal counsel correspondence,
+#      executive personal channels, board-only Jira). Dropped BEFORE any LLM
+#      call; content never logged.
+#   2. noise — ported from a proven set of daily-brief filters
+#      (OTP / marketing / bot-chatter exclusions).
+#
+# Spec exclusions enforced in code, not here: calendar invites (Graph
+# eventMessage types), group-alias mail where the user is not in To,
+# @channel/@here broadcasts without a direct mention.
+
+do_not_ingest:
+  email_senders: []      # legal counsel domains/addresses — owner fills before week 1
+  slack_channels: []     # executive personal channel IDs
+  jira_projects: []      # board-only projects (PROJ is in scope; list exceptions here)
+  jira_labels: []        # board-only labels
+
+noise:
+  email:
+    sender_patterns:
+      - "no-?reply@"
+      - "do-?not-?reply@"
+      - "notifications?@"
+      - "newsletter@"
+      - "marketing@"
+      - "billing@.*\\.(com|io|net)$"
+    subject_patterns:
+      - "(?i)verification code"
+      - "(?i)one-?time (pass)?code"
+      - "(?i)security code"
+      - "(?i)password reset"
+      - "(?i)sign[- ]?in link"
+      - "(?i)your receipt"
+      - "(?i)unsubscribe"
+      - "(?i)webinar invitation"
+    automated_sender_domains:   # app notification chatter, never a human ask
+      - slack.com
+      - atlassian.net
+      - atlassian.com
+      - asana.com
+      - calendly.com
+      - zoom.us
+      - docusign.net
+      - hubspot.com
+      - fireflies.ai
+  slack:
+    drop_bot_messages: true
+    drop_join_leave: true
+    drop_channel_broadcasts: true   # @channel/@here with no direct @mention of the user

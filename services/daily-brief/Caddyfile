@@ -1,0 +1,6 @@
+# Public HTTPS for the n8n webhooks (Slack OAuth redirect). RUNBOOK step 8:
+# point an A record (e.g. ops.acme.example.com) at this box, set N8N_HOST in .env,
+# and Caddy handles Let's Encrypt automatically.
+{$N8N_HOST:localhost} {
+	reverse_proxy n8n:5678
+}
