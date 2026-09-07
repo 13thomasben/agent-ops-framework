@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>{{ subject }}</title>
+</head>
+<body style="margin:0;padding:0;background-color:#f4f4f2;">
+<!-- Single column, table-based, inline CSS only, no images — renders in
+     Outlook (Word engine) and Gmail. Spec §5. -->
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#f4f4f2;">
+<tr><td align="center" style="padding:16px 8px;">
+<table role="presentation" width="600" cellpadding="0" cellspacing="0"
+       style="max-width:600px;width:100%;background-color:#ffffff;border:1px solid #e3e3df;">
+
+<tr><td style="padding:28px 28px 20px 28px;font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;">
+  <div style="font-size:13px;letter-spacing:2.5px;font-weight:700;color:#16161a;">YOUR OPEN LOOPS</div>
+  <div style="font-size:14px;color:#5d5d66;padding-top:6px;">
+    {{ date_line }}{% for seg in count_segments %} &nbsp;&middot;&nbsp; {{ seg }}{% endfor %}
+  </div>
+</td></tr>
+
+{% if not sections and not waiting %}
+<tr><td style="padding:8px 28px 28px 28px;font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;">
+  <div style="font-size:15px;color:#16161a;">No open loops detected. Nothing is waiting on you.</div>
+</td></tr>
+{% endif %}
+
+{% for section in sections %}
+<tr><td style="padding:8px 28px 0 28px;font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;">
+  <div style="font-size:12px;letter-spacing:1.5px;font-weight:700;color:{{ section.color }};
+              border-bottom:1px solid #e9e9e5;padding-bottom:6px;">{{ section.title }}</div>
+</td></tr>
+{% for item in section.rows %}
+<tr><td style="padding:{{ '14px' if not section.compact else '10px' }} 28px 0 28px;font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;">
+  <div style="font-size:15px;color:#16161a;line-height:1.45;">
+    <span style="font-weight:700;">{{ item.position }}. {{ item.title }}</span>
+    <span style="color:#8a4b08;font-weight:600;white-space:nowrap;">&nbsp;&middot; {{ item.counter }}</span>
+  </div>
+  {% if not section.compact and item.detail %}
+  <div style="font-size:14px;color:#43434b;line-height:1.5;padding-top:3px;">{{ item.detail }}</div>
+  {% endif %}
+  {% if not section.compact %}
+  <div style="font-size:13px;color:#5d5d66;font-style:italic;padding-top:4px;">
+    {% if item.link %}<a href="{{ item.link }}" style="color:#1a56a0;text-decoration:underline;">{{ item.source_label }}</a>
+    {% else %}{{ item.source_label }}{% endif %}
+  </div>
+  {% endif %}
+</td></tr>
+{% endfor %}
+{% if section.after_note %}
+<tr><td style="padding:12px 28px 0 28px;font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;">
+  <div style="font-size:13px;color:#5d5d66;font-style:italic;">{{ section.after_note }}</div>
+</td></tr>
+{% endif %}
+<tr><td style="padding-bottom:10px;"></td></tr>
+{% endfor %}
+
+{% if waiting %}
+<tr><td style="padding:8px 28px 0 28px;font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;">
+  <div style="font-size:12px;letter-spacing:1.5px;font-weight:700;color:#3d3d46;
+              border-bottom:1px solid #e9e9e5;padding-bottom:6px;">WAITING ON OTHERS</div>
+</td></tr>
+{% for w in waiting %}
+<tr><td style="padding:10px 28px 0 28px;font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;">
+  <div style="font-size:14px;color:#16161a;line-height:1.45;">
+    {{ w.position }}. <span style="font-weight:700;">{{ w.counterparty }}</span> &middot; {{ w.title }}
+    <span style="color:#5d5d66;">&middot; {{ w.counter }}</span>
+    {% if w.link %} &nbsp;<a href="{{ w.link }}" style="color:#1a56a0;font-size:13px;">open</a>{% endif %}
+  </div>
+</td></tr>
+{% endfor %}
+<tr><td style="padding-bottom:10px;"></td></tr>
+{% endif %}
+
+<tr><td style="padding:18px 28px 26px 28px;font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;border-top:1px solid #e9e9e5;">
+  <div style="font-size:13px;color:#5d5d66;font-style:italic;line-height:1.5;">
+    Reply to this email with item numbers to close them, for example &ldquo;close 4, 7&rdquo;.
+  </div>
+  <div style="font-size:11px;color:#9a9aa2;padding-top:10px;">
+    Accountability Brief &middot; an item leaves this list only when a real response is detected &middot; {{ generated }}
+  </div>
+</td></tr>
+
+</table>
+</td></tr>
+</table>
+</body>
+</html>
