@@ -1,0 +1,47 @@
+# Documented template. The live file is config.yaml alongside this one, and it
+# IS committed — a scheduled run clones the repo fresh, so a local-only config
+# means every routine run falls back to report_only defaults.
+
+# report_only sends one digest to report_to and DMs nobody else.
+# live DMs the actual authors. Run report_only for a week or two first.
+mode: report_only
+
+# Slack user ID(s) that receive a DM copy of the digest, in both modes. Accepts
+# a single ID or a list — e.g. [U_EXAMPLE_CEO, U_EXAMPLE_OWNER].
+# Prefer leaving this empty: the repo-wide rule in _shared/slack-dispatch.md is
+# that operational output goes to #applied-ai rather than to anyone's DMs.
+report_to: []
+
+# Channel ID(s) that get the digest posted, in both modes. Accepts a single ID
+# or a list. This is the primary delivery path — set at least one, or the digest
+# and the "couldn't sweep" notice have nowhere to land. Private channels need
+# @bot invited or the post fails with not_in_channel.
+digest_channels:
+  - C_EXAMPLE_APPLIED_AI  # #applied-ai
+
+# The window normally starts where the last run's window ended, read off the
+# footer of the last digest — these two are only the fallback for when no
+# previous digest can be found at all.
+lookback_hours: 24
+monday_lookback_hours: 72
+
+# Hard ceiling on the window however long the real gap is. Overflow past this
+# is reported in the digest, not scanned.
+max_lookback_hours: 96
+
+# Channels never scanned. Social and feed channels belong here.
+# The skills' own delivery channels are skipped by the skill regardless.
+skip_channels:
+  - random
+  - general
+  - watercooler
+
+# Max examples listed in a single nudge.
+max_items_per_dm: 3
+
+# high or medium. Only loosen after reviewing digests.
+min_confidence: high
+
+# Env var holding the @bot app's xoxb- token, per
+# contracts/slack-dispatch.md. Scopes needed: chat:write, im:write.
+bot_token_env: SLACK_BOT_TOKEN
