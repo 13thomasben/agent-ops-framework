@@ -1,0 +1,61 @@
+# EXAMPLE 1 — read-only public web monitoring.
+#
+# This is the shape you want for most scheduled tasks: no credentials, tight
+# domain allowlist, strict result schema, cheap model. Start here.
+
+name: TEMPLATE-rename-me
+description: Pull published equipment finance rates from a public lender page
+schedule: "0 7 * * 1-5"        # informational only — your scheduler reads this
+
+goal: |
+  Find the currently published financing rate tiers on this page.
+
+  For every tier listed, capture: the tier name, the stated APR or rate range
+  exactly as written, the term length in months, and any minimum or maximum
+  financing amount.
+
+  If the page shows a "last updated" or effective date, capture it.
+
+  Do not compute, average, or normalise anything. Record the values verbatim as
+  the page states them. If a field is not shown for a tier, use null.
+
+# TODO: replace with the real target.
+start_url: https://example.com/equipment-financing/rates
+allowed_domains:
+  - example.com
+
+max_steps: 20
+max_cost_usd: 0.35
+
+result_schema:
+  type: object
+  properties:
+    effective_date:
+      type: ["string", "null"]
+      description: As printed on the page, or null if absent
+    tiers:
+      type: array
+      items:
+        type: object
+        properties:
+          tier_name: {type: string}
+          rate_as_written: {type: string}
+          term_months: {type: ["integer", "null"]}
+          min_amount: {type: ["string", "null"]}
+          max_amount: {type: ["string", "null"]}
+        required: [tier_name, rate_as_written]
+    page_changed_notes:
+      type: string
+      description: Anything structurally odd about the page this run
+  required: [tiers]
+
+notes: |
+  Rates are usually in a table partway down the page. Scroll before concluding
+  a tier is missing. Some lenders footnote conditions with an asterisk — capture
+  the asterisk in rate_as_written if present.
+
+sinks:
+  - type: file
+  - type: slack_webhook
+    url_env: SLACK_WEBHOOK_URL
+    include_result: true

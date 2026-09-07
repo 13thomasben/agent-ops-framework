@@ -1,0 +1,37 @@
+# Global defaults. Any task can override any of these in its own YAML file.
+
+defaults:
+  # claude-sonnet-5 is the right default for browser work: strong agentic
+  # behaviour at a fraction of Opus pricing, and a browser run burns a lot of
+  # tokens re-reading page snapshots.
+  #
+  # Escalate to claude-opus-5 only for genuinely hard navigation (unfamiliar
+  # portals, multi-step reasoning about what a page means).
+  # Drop to claude-haiku-4-5 for dead-simple, well-known page shapes.
+  #
+  # Do NOT set temperature/top_p/top_k anywhere — Sonnet 5 and Opus 5 return a
+  # 400 error for non-default sampling parameters.
+  model: claude-sonnet-5
+
+  # Three independent circuit breakers. Each catches a different failure.
+  max_steps: 40             # agent looping on a broken element
+  timeout_seconds: 600      # a page that hangs
+  max_cost_usd: 1.00        # a run that is progressing but not worth it
+
+  headless: true
+
+  nav_timeout_ms: 30000
+  action_timeout_ms: 10000
+
+  # Use a Chromium already on disk instead of the one `playwright install`
+  # downloads. Set this wherever that download is blocked but the image ships a
+  # browser — most managed containers do. `WEBAGENT_CHROME_PATH` overrides it.
+  # Claude Code's containers: /opt/pw-browsers/chromium-*/chrome-linux/chrome
+  executable_path: ""
+
+  # Leave blank to launch a local Chromium.
+  # To use managed browser infrastructure instead, put the CDP websocket URL
+  # here (Browserbase, Steel, Kernel, Browserless all speak CDP), e.g.
+  #   cdp_url: "wss://connect.browserbase.com?apiKey=..."
+  # Everything else in this project stays identical.
+  cdp_url: ""

@@ -1,0 +1,83 @@
+# TEST 3 — login, secrets, and session persistence, against a site that exists
+# to be automated. Do this before pointing the skill at a real lender portal.
+#
+#   export SAUCEDEMO_USERNAME=standard_user
+#   export SAUCEDEMO_PASSWORD=secret_sauce
+#   python harnesses/webagent/run.py run test-login --headed --stdout
+#
+# saucedemo.com is Sauce Labs' public demo storefront. The credentials above are
+# published by them for exactly this purpose — there is no real account, no real
+# data, and nothing to break. It stands in for "a portal with a login form" so
+# the auth path gets exercised somewhere harmless first.
+#
+# Note the credentials still go in ENV VARS, not in this file. That is the point:
+# this task tests the browser_fill_secret path end to end.
+#
+# What each run tells you:
+#   1st run (cold)  — logs in, and writes state/test-login.storage.json
+#   2nd run (warm)  — should land already authenticated and use noticeably fewer
+#                     steps. If step count doesn't drop, persist_session isn't
+#                     working and every real portal run will re-login too.
+#
+# PASS: status `completed`, authenticated true, and the product names and prices
+#       match what you can see in the headed browser window field for field. The
+#       window is the ground truth here — check it, don't trust the JSON.
+#
+# Incidental: the inventory page has "Remove" buttons, and `remove` is a default
+# blocked keyword, so a click on one is refused at the browser layer. If you see
+# that in the action log, the destructive guard is working.
+
+name: test-login
+description: Login + secrets + session-reuse test against Sauce Labs' demo store
+
+goal: |
+  Log in if not already authenticated, then read the product inventory page.
+
+  Report whether you ended up authenticated, and for every product listed
+  capture its name and its price exactly as written on the page, including the
+  currency symbol.
+
+  Read only. Do not add anything to the cart, remove anything, or check out.
+
+  Record the prices verbatim. Do not round, reformat, or convert them.
+
+start_url: https://www.saucedemo.com/
+allowed_domains:
+  - saucedemo.com
+
+secrets:
+  - SAUCEDEMO_USERNAME
+  - SAUCEDEMO_PASSWORD
+
+persist_session: true
+allow_destructive: false
+
+max_steps: 20
+timeout_seconds: 300
+max_cost_usd: 0.40
+
+result_schema:
+  type: object
+  properties:
+    authenticated:
+      type: boolean
+    product_count:
+      type: integer
+    products:
+      type: array
+      items:
+        type: object
+        properties:
+          name: {type: string}
+          price_as_written: {type: string}
+        required: [name, price_as_written]
+  required: [authenticated, products]
+
+notes: |
+  If the session cookie is still valid you will land straight on the inventory
+  page — in that case skip the login step entirely and say so in the summary.
+
+  Do not retry a failed login more than twice.
+
+sinks:
+  - type: stdout

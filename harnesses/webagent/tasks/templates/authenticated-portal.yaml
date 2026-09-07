@@ -1,0 +1,84 @@
+# EXAMPLE 2 — authenticated portal, read-only.
+#
+# This is the case browser agents actually earn their keep on: a lender or
+# bureau portal with no API. Note three things:
+#
+#   1. secrets are ENV VAR NAMES, never values. The agent fills them by name
+#      and never sees the contents.
+#   2. persist_session: true saves cookies to state/ so subsequent runs skip
+#      the login flow entirely. Big reliability and cost win.
+#   3. allow_destructive stays false, so anything labelled approve/submit/
+#      delete/pay is hard-blocked at the browser layer regardless of what the
+#      model decides to do.
+
+name: TEMPLATE-rename-me
+description: Check the lender portal for applications sitting in a stalled state
+schedule: "0 8,14 * * 1-5"
+
+goal: |
+  Log in if not already authenticated, then open the application queue.
+
+  Report every application currently in a pending or awaiting-documents state
+  that has not moved in more than 3 business days. For each one capture: the
+  application ID, the applicant or dealer name as shown, the current status
+  label, and the last-activity date.
+
+  Read only. Do not open, approve, decline, or modify any application. Do not
+  download anything.
+
+  If the queue is empty, that is a valid result — return an empty list.
+
+# TODO: replace with the real portal.
+start_url: https://portal.example-lender.com/login
+allowed_domains:
+  - portal.example-lender.com
+  - example-lender.com
+
+secrets:
+  - PORTAL_USERNAME
+  - PORTAL_PASSWORD
+
+persist_session: true
+allow_destructive: false
+
+max_steps: 35
+timeout_seconds: 480
+max_cost_usd: 0.75
+
+result_schema:
+  type: object
+  properties:
+    authenticated:
+      type: boolean
+    queue_total:
+      type: ["integer", "null"]
+      description: Total items in the queue, if the portal displays a count
+    stalled:
+      type: array
+      items:
+        type: object
+        properties:
+          application_id: {type: string}
+          party_name: {type: string}
+          status_label: {type: string}
+          last_activity_date: {type: string}
+        required: [application_id, status_label]
+  required: [authenticated, stalled]
+
+notes: |
+  If the session cookie is still valid you will land straight on the dashboard —
+  in that case skip the login step entirely.
+
+  The queue may paginate. Check for a next-page control before concluding you
+  have seen everything, and say so in the summary if you could not reach the
+  last page within your step budget.
+
+  If you hit MFA, a CAPTCHA, or a "session expired, contact your admin" wall,
+  stop and call task_failed. Do not retry the login more than twice — repeated
+  failures can lock the account.
+
+sinks:
+  - type: file
+  - type: slack_webhook
+    url_env: SLACK_WEBHOOK_URL
+    include_result: true

@@ -1,0 +1,37 @@
+# EXAMPLE 3 — smoke test. Run this first to confirm the install works
+# end to end before you point anything at a real target.
+#
+#   python run.py run smoke-test --headed --stdout
+
+name: smoke-test
+description: Verify browser, model, tools, and guardrails are all wired up
+
+goal: |
+  Confirm the browser agent stack is working.
+
+  Navigate to the start page, read it, and report the page title, the number of
+  interactive elements you can see in the first snapshot, and the first heading
+  on the page.
+
+  Then attempt to navigate to https://www.wikipedia.org — this SHOULD be blocked
+  by the domain guardrail. Report whether the block fired as expected.
+
+start_url: https://example.com
+allowed_domains:
+  - example.com
+
+max_steps: 8
+timeout_seconds: 120
+max_cost_usd: 0.10
+
+result_schema:
+  type: object
+  properties:
+    page_title: {type: string}
+    first_heading: {type: string}
+    interactive_element_count: {type: integer}
+    guardrail_blocked_offdomain: {type: boolean}
+  required: [page_title, guardrail_blocked_offdomain]
+
+sinks:
+  - type: stdout

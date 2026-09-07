@@ -1,0 +1,16 @@
+# Run artifacts — these contain scraped data. Never commit.
+runs/*
+!runs/.gitkeep
+
+# Session state — these contain LIVE AUTH COOKIES. Never commit.
+state/*
+!state/.gitkeep
+
+# Credentials
+.env
+# ...but the template with no values in it is meant to be committed. The repo
+# root ignores `.env.*`, which would otherwise swallow it.
+!.env.example
+
+__pycache__/
+*.pyc

@@ -1,0 +1,82 @@
+# TEST 4 — dense real-world table, verbatim capture. The closest analog to the
+# actual use case in tasks/templates/public-page.yaml.
+#
+#   python harnesses/webagent/run.py run test-public-table --headed --stdout
+#
+# The Fed's H.15 release is public, read-only, updated weekly, and genuinely
+# dense — a wide dated table with footnote markers and cells the Fed prints as
+# "n.a." rather than leaving blank.
+#
+# That "n.a." is the discriminating detail. A run that reports it verbatim as
+# "n.a." understood the instruction. A run that turns it into null, 0, or a
+# neighbouring row's number is normalising — the exact failure this tool is
+# built to avoid, and the one you cannot spot downstream because the output
+# still looks well-formed.
+#
+# PASS: status `completed`, the release date matches the page, and spot-checking
+#       three or four rates against the headed window shows them character for
+#       character identical.
+#
+# Also read the `metrics` block on this one — it's a realistic page, so its cost
+# and step count are what you should size max_cost_usd / max_steps against for a
+# real task. Something trivial like smoke-test tells you nothing about that.
+
+name: test-public-table
+description: Verbatim-capture test on a dense public rate table (Fed H.15)
+
+goal: |
+  Read the selected interest rates published on this page.
+
+  Capture the release date and the "as of" date the table covers, exactly as
+  printed. Then for each instrument shown in the table, capture the instrument
+  name as printed and its most recent published rate as printed.
+
+  Record every value verbatim. Do not compute, average, round, or normalise
+  anything. Where the table prints a placeholder such as "n.a." instead of a
+  number, record that placeholder exactly as written — do not substitute null,
+  zero, or a value from another row.
+
+  If the table is wider than the viewport or continues below the fold, scroll
+  and re-read before concluding you have seen every row.
+
+start_url: https://www.federalreserve.gov/releases/h15/
+allowed_domains:
+  - federalreserve.gov
+
+max_steps: 25
+timeout_seconds: 420
+max_cost_usd: 0.50
+
+result_schema:
+  type: object
+  properties:
+    release_date:
+      type: ["string", "null"]
+      description: As printed on the page, or null if genuinely not shown
+    as_of_date:
+      type: ["string", "null"]
+    rates:
+      type: array
+      items:
+        type: object
+        properties:
+          instrument: {type: string}
+          rate_as_written:
+            type: string
+            description: Verbatim, including "n.a." or any footnote marker
+        required: [instrument, rate_as_written]
+    reading_notes:
+      type: string
+      description: Anything structurally odd about the page this run
+  required: [rates]
+
+notes: |
+  The Fed marks footnotes with superscript numbers next to instrument names.
+  Keep the marker if it is part of the visible label.
+
+  This is a wide table. If you cannot reach every row within the step budget,
+  report what you did read and say so plainly in the summary rather than
+  guessing at the remainder.
+
+sinks:
+  - type: stdout
