@@ -2,13 +2,13 @@
 
 An operating framework for **unattended LLM agents that write into real business systems**: the contracts that decide whether an agent may write at all, the watchdogs that notice when a run never happened, the harnesses that keep a browser agent inside hard caps, and two complete services built the same way.
 
-Everything here is lifted from a private production repo that runs a fleet of ~21 Claude Code agents on scheduled routines for a B2B software company. Those agents read call transcripts, HubSpot, Jira, Slack, and Outlook every day and write coaching reports, CRM notes, tickets, Confluence pages, and Slack posts. Company names, people, IDs, and all per-run data have been replaced with fictional stand-ins ("Acme", `U_EXAMPLE`, `PROJ-123`); the rules, code, and mechanics are unchanged.
+Everything here is lifted from a private production repo that runs a fleet of ~21 coding agents on scheduled routines for a B2B software company. Those agents read call transcripts, HubSpot, Jira, Slack, and Outlook every day and write coaching reports, CRM notes, tickets, Confluence pages, and Slack posts. Company names, people, IDs, and all per-run data have been replaced with fictional stand-ins ("Acme", `U_EXAMPLE`, `PROJ-123`); the rules, code, and mechanics are unchanged.
 
-Built by [Riley Thomas](https://www.linkedin.com/in/brileyt/) with Claude Code and the Anthropic API, July to September 2026.
+Built by [Riley Thomas](https://www.linkedin.com/in/brileyt/) with coding agents, July to September 2026.
 
 ## The pattern in one paragraph
 
-A **skill** is a `SKILL.md` that tells a fresh Claude Code session exactly what to do, unattended. A **routine** fires that skill on a cron schedule with a thin entry prompt and a set of env vars. The skill clones this repo, does its job against live systems, writes its state (ledgers, thread logs, proposals) as CSV and JSONL back into the repo, and opens a PR. **Git is the state layer and the audit log.** A handful of **shared contracts** outrank any individual skill and decide how an agent posts, what it may write, and what it does when a human replies. Two **watchdogs** run as skills themselves: one detects runs that did not happen, the other audits the fleet's own repo hygiene. Every new skill ships through the same checklist (`PROCESS.md`) and carries a plain-language canvas for the people who read its output; CI warns when the two drift.
+A **skill** is a `SKILL.md` that tells a fresh coding-agent session exactly what to do, unattended. A **routine** fires that skill on a cron schedule with a thin entry prompt and a set of env vars. The skill clones this repo, does its job against live systems, writes its state (ledgers, thread logs, proposals) as CSV and JSONL back into the repo, and opens a PR. **Git is the state layer and the audit log.** A handful of **shared contracts** outrank any individual skill and decide how an agent posts, what it may write, and what it does when a human replies. Two **watchdogs** run as skills themselves: one detects runs that did not happen, the other audits the fleet's own repo hygiene. Every new skill ships through the same checklist (`PROCESS.md`) and carries a plain-language canvas for the people who read its output; CI warns when the two drift.
 
 ```
  cron routine ──► thin prompt ──► SKILL.md ──► live systems (Slack, HubSpot, Jira, M365)
@@ -31,12 +31,12 @@ A **skill** is a `SKILL.md` that tells a fresh Claude Code session exactly what 
 | [`skills/run-health/`](skills/run-health/) | Watchdog that detects scheduled runs that **did not happen**, using three independent evidence signals per skill, and escalates after repeated misses. Reports absence, never a guessed cause. |
 | [`skills/fleet-integrity-check/`](skills/fleet-integrity-check/) | Weekday audit of unmerged state PRs and repo self-consistency across the fleet. Report-only. |
 | [`skills/slack-thread-hygiene/`](skills/slack-thread-hygiene/) | Daily sweep that nudges people who reply out of thread; derives its window from its own last digest so it never double-counts. |
-| [`harnesses/webagent/`](harnesses/webagent/) | A Claude-driven Playwright browser agent with step, wall-clock, and cost caps, a domain allowlist, secrets that never enter model context, and an honesty-first `task_failed` path. 39-check offline suite runs the real loop against a fixture site with a scripted model. |
+| [`harnesses/webagent/`](harnesses/webagent/) | An LLM-driven Playwright browser agent with step, wall-clock, and cost caps, a domain allowlist, secrets that never enter model context, and an honesty-first `task_failed` path. 39-check offline suite runs the real loop against a fixture site with a scripted model. |
 | [`services/daily-brief/`](services/daily-brief/) | FastAPI + Postgres + n8n + Docker service: pulls Microsoft Graph, Slack, and Jira, classifies each person's open loops with an LLM, scores them, and renders a 6:15 AM email that persists items until a real response lands. Reply-to-close via webhook. 25 tests. |
 | [`pipelines/marketplace-scout/`](pipelines/marketplace-scout/) | "LLM proposes, code decides." Scores marketplace listings with pydantic structured outputs, then hard-coded guardrails hold every money action for a human via Telegram approval cards. Nine-state sqlite state machine. 50 tests. |
 | [`prompts/`](prompts/) | Two example thin entry prompts a routine points at. |
 | [`docs/agent-canvases/`](docs/agent-canvases/) | Conventions for the reader-facing channel canvases, plus the manifest CI checks against. |
-| [`tracker/`](tracker/) | The AI-ops inventory format (one row per agent, routine, or vendor pilot) with CSV editing rules for multiple Claude accounts sharing one file. |
+| [`tracker/`](tracker/) | The AI-ops inventory format (one row per agent, routine, or vendor pilot) with CSV editing rules for multiple agent accounts sharing one file. |
 | [`.github/workflows/canvas-drift.yml`](.github/workflows/canvas-drift.yml) | CI that warns when a skill changes without its canvas. Non-blocking by design. |
 
 ## Things that only became rules after they went wrong
