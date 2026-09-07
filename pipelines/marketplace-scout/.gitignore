@@ -1,0 +1,26 @@
+# secrets & local config — never commit tokens
+.env
+*.local.toml
+config.local.*
+.mcp.json
+
+# state & caches
+*.sqlite3
+*.db
+__pycache__/
+.pytest_cache/
+.ruff_cache/
+.venv/
+venv/
+dist/
+build/
+*.egg-info/
+
+# editor / OS
+.vscode/
+.idea/
+Thumbs.db
+.DS_Store
+
+# claude code local settings
+.claude/settings.local.json

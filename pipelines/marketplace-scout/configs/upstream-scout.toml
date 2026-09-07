@@ -1,0 +1,40 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# SCOUT-MODE config for the upstream monitor (Phase 1 architecture).
+#
+# What changed vs Phase 0: upstream no longer judges or notifies. It only
+# searches Facebook (human-paced, real browser) and caches every listing's
+# details. The sidecar (`scout run`) reads that cache, scores each listing
+# against configs/wants/*.toml with photos + geo + delivery math, and owns
+# ALL Telegram traffic.
+#
+# Migration on the laptop:
+#   1. copy this file over ~/.ai-marketplace-monitor/config.toml
+#   2. keep scripts\run-radar.ps1 running the monitor as before
+#   3. in a second window:  scout run          (pip install -e . first)
+#
+# Note: no [ai.*] section on purpose (AI is optional upstream — without it,
+# everything passing the hard filters below gets cached, which is exactly what
+# the sidecar wants). The [user.owner] section keeps no channels; the web UI
+# at localhost:8467 still works for eyeballing.
+# ─────────────────────────────────────────────────────────────────────────────
+
+[marketplace.facebook]
+search_city = 'LOCATION_ID'  # numeric Marketplace location ID for your metro
+radius = 25
+search_interval = '30m'
+max_search_interval = '1h'
+login_wait_time = '5m'
+
+# One [item.X] per want — X must match the want's slug in configs/wants/.
+# Keep these filters WIDE: their only job is to keep junk out of the cache;
+# all real judging happens in the sidecar. `scout want add "..."` prints
+# a ready-made section for each new want.
+
+[item.desk]
+search_phrases = ['desk', 'writing desk', 'computer desk', 'wood desk']
+min_price = 25
+max_price = 300
+antikeywords = ['desk chair', 'desk lamp', 'kids desk']
+
+[user.owner]
+# Intentionally empty: notifications are the sidecar's job now.

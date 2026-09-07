@@ -1,0 +1,18 @@
+slug = 'desk'
+value_bar = 0.6
+max_budget = 250
+search_phrases = ['desk', 'writing desk', 'computer desk', 'wood desk']
+active = true
+brief = '''
+A used desk for a home office. Ideal target is around 48-60 inches wide and
+24-30 inches deep at normal desk height (28-31 inches) — treat these as targets
+with human tolerances, not hard limits; judge whether a given piece still
+serves the same purpose (a 44" writing desk can absolutely work; a 20" side
+table or an 80" conference table cannot).
+
+Sturdy construction that will last many years: solid wood, or a metal frame
+with a real wood top; at least one drawer is nice but not required; a flat,
+unobstructed work surface; no wobble, swelling, or water-damage signals.
+Style: classic, mid-century, or plain modern all work; avoid glass tops, heavy
+farmhouse distressing, and obvious flat-pack (particle board, laminate).
+'''

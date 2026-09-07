@@ -1,0 +1,91 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Phase 0 config — example radar (two-gate notification rubric, v2)
+# Tool: https://github.com/BoPeng/ai-marketplace-monitor  (v0.10.x)
+#
+# This is a GENERIC EXAMPLE: it hunts a used desk. Replace the location ID,
+# the price band, and the description with your own.
+#
+# Install:   pip install ai-marketplace-monitor python-magic-bin && playwright install chromium
+#            (python-magic-bin matters: on Windows the pushbullet dependency
+#            segfaults at import without its bundled libmagic DLL.)
+# Place at:  ~/.ai-marketplace-monitor/config.toml
+# Secrets:   set ANTHROPIC_API_KEY, TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID as
+#            environment variables — the ${VAR} fields below expand at load
+#            time and the monitor refuses to start if they're missing.
+# Run:       ai-marketplace-monitor
+#            → a browser window opens; log into Facebook ONCE, then let it run.
+# ─────────────────────────────────────────────────────────────────────────────
+
+[marketplace.facebook]
+search_city = 'LOCATION_ID'  # numeric Marketplace location ID for your metro. Read it
+                             # from your own logged-in Marketplace URL:
+                             # /marketplace/<LOCATION_ID>/search?query=desk
+                             # should return listings in your area.
+radius = 25                  # keep 25: far-but-cheap items can still pass via mover math;
+                             # the notification rubric (not the search radius) does the gating
+seller_locations = []        # optional: restrict to specific nearby towns
+search_interval = '30m'      # gentle cadence keeps your account boring — don't go lower
+max_search_interval = '1h'   # actual interval randomizes between these two
+login_wait_time = '5m'       # pause after the browser opens so you can log into
+                             # Facebook manually (default 60s was too short to catch)
+
+[ai.anthropic]
+api_key = '${ANTHROPIC_API_KEY}'   # expanded from the environment at load time —
+                                   # never put the actual key in this file.
+                                   # (Any provider works: [ai.openai], [ai.gemini],
+                                   # [ai.deepseek], local [ai.ollama]; one is enough.)
+model = 'claude-sonnet-5'   # REQUIRED: upstream's default (claude-sonnet-4-20250514)
+                            # was retired in 2026 and 404s. Sonnet 5 runs ~$5/mo at
+                            # this volume; 'claude-opus-4-8' (~$10-15/mo) scores a bit
+                            # sharper, 'claude-haiku-4-5' (~$2/mo) is cheaper.
+
+[item.desk]
+search_phrases = ['desk', 'writing desk', 'computer desk']
+min_price = 25      # placeholder — filters out the junk/scam tier; set your own
+max_price = 200     # placeholder — set your own ceiling
+antikeywords = ['desk chair', 'desk lamp', 'kids desk', 'standing desk converter']
+rating = 4          # notify only on 4–5. If still too chatty after a few days,
+                    # change this single number to 5.
+description = '''
+I want a solid, well-made used desk for a home office that will last many years.
+
+HARD LIMITS: no wider than 60 inches, no deeper than 30 inches. Height should be
+a normal desk height (28-31 inches). If stated or visible dimensions exceed
+these limits, this is NOT a match. If dimensions are not stated anywhere, rate
+at most 3 and say "dimensions unconfirmed" in your summary.
+
+PREFER: solid wood or a sturdy metal frame with a real wood top, at least one
+drawer, a flat unobstructed work surface, no wobble visible in photos.
+
+DOWNGRADE HEAVILY: particle board / MDF / laminate flat-pack, water damage or
+swelling, missing hardware, heavy paint over veneer, mentions of smoke or
+strong odors, obvious stock photos, prices absurdly below market (scam
+signal), brand-new seller profiles.
+
+THE NOTIFICATION BAR — be ruthless. A rating of 4 or 5 interrupts my day, so
+the default answer is 3 or below. Rate 4+ ONLY if BOTH gates pass:
+
+GATE 1 — VALUE. Estimate realistic local resale value for the condition shown.
+Compute all-in cost = asking price + the delivery cost set by Gate 2. Rate 4+
+only if all-in cost is at most 60% of resale value. A merely fair price is a 3.
+
+GATE 2 — GETTABILITY. Exactly one of these applies and sets the delivery cost:
+  (a) CLOSE (~within 10 miles of home): the city proper or close-in suburbs.
+      Delivery cost: $0.
+  (b) EVERYWHERE ELSE: assume a professional 2-person mover at $115. That is
+      fine — but Gate 1 must still pass WITH the $115 included, which means the
+      piece must be a serious steal to be worth notifying about.
+  A vague location like just a state name is never CLOSE — it only qualifies
+  through (b) math.
+
+CONFIDENCE RULE: if dimensions, location, or condition are too vague to apply
+the gates, cap the rating at 3 and say exactly what is missing. Reserve 5 for
+exceptional steals I would genuinely regret missing.
+'''
+
+[user.owner]
+# Easiest channel: Telegram. Create a bot with @BotFather (30 seconds), grab the
+# token, message the bot once, then get your chat id from @userinfobot.
+# Both values expand from the environment — never put the real values in this file.
+telegram_token = '${TELEGRAM_BOT_TOKEN}'
+telegram_chat_id = '${TELEGRAM_CHAT_ID}'
