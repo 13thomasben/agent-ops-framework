@@ -1,0 +1,70 @@
+{
+  "_comment": [
+    "EXAMPLE manifest, trimmed to three fictionalized entries for the public showcase.",
+    "Manifest of Slack channel canvases and the skills each one describes.",
+    "Single source for: the coverage table in README.md, the publish script, and the",
+    "canvas-drift check in .github/workflows/canvas-drift.yml. Add a row here when a",
+    "skill starts delivering into a new channel, and record canvas_id once published.",
+    "Every canvas with a canvas_id here is published. To change one, edit its source file",
+    "and call canvases.edit with the canvas_id below and a document_content replace",
+    "operation. conversations.canvases.create again makes a SECOND canvas.",
+    "The TITLE cannot be changed after creation: canvases.edit rejects a title",
+    "argument, so a retitle means delete + recreate. Always pass title on create."
+  ],
+  "canvases": [
+    {
+      "channel": "customer-support-reporting",
+      "channel_id": "C_EXAMPLE_SUPPORT",
+      "private": false,
+      "source": "customer-support-reporting.md",
+      "canvas_id": "F_EXAMPLE_4",
+      "title": "Daily Ticket Check Agent Description",
+      "published": "2026-08-11",
+      "skills": [
+        "acme-ticket-daily-check"
+      ],
+      "notes": null
+    },
+    {
+      "channel": "applied-ai",
+      "channel_id": "C_EXAMPLE_APPLIED_AI",
+      "private": true,
+      "source": "applied-ai.md",
+      "canvas_id": "F_EXAMPLE_6",
+      "title": "Applied AI Channel Agent Description",
+      "published": "2026-08-11",
+      "skills": [
+        "pre-call-primer",
+        "slack-thread-hygiene",
+        "weekly-pipeline-brief",
+        "acme-ticket-daily-check",
+        "run-health",
+        "fleet-integrity-check"
+      ],
+      "notes": "Several jobs in one channel: primer notices, the thread-hygiene digest, the Monday pipeline brief, and the suggestion inbox plus every operational notice that used to be a DM. The skills listed after weekly-pipeline-brief are here only for their routed suggestions and notices — their own reports are documented on their own channels."
+    },
+    {
+      "channel": "applied-ai_repo_health",
+      "channel_id": "C_EXAMPLE_REPO_HEALTH",
+      "private": true,
+      "source": "repo-health.md",
+      "canvas_id": "F_EXAMPLE_7",
+      "title": "Repo Health Agent Description",
+      "published": "2026-08-25",
+      "skills": [
+        "fleet-integrity-check"
+      ],
+      "notes": "Published via conversations.canvases.create (channel canvas, not standalone). Verified before create that conversations.info reported properties.canvas null, so this is the only canvas on the channel. To change it, edit repo-health.md then canvases.edit with this canvas_id and a document_content replace; a second create makes a duplicate. @bot is a member, so create did not fail not_in_channel. Channel exists to keep the repo audit out of #applied-ai, which is a delivery channel this skill also reports on; the product_or_architecture items it routes under _shared/thread-feedback.md still go to #applied-ai, which is why that skill appears on both entries."
+    }
+  ],
+  "no_canvas": [
+    {
+      "skill": "webagent",
+      "reason": "Building block. No Slack delivery of its own."
+    },
+    {
+      "skill": "linkedin-watch",
+      "reason": "Building block. No Slack delivery of its own; described inside the market-intel-analysis canvas, which is the skill that calls it."
+    }
+  ]
+}

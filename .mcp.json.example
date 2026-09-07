@@ -1,0 +1,30 @@
+{
+  "_comment": "Copy this file to .mcp.json and fill in real values. Do NOT commit .mcp.json with secrets. Inject auth from GitHub Actions secrets or your cloud runner's secret manager. SLACK WRITES ARE NOT AN MCP CONCERN: every skill posts as the @bot app using SLACK_BOT_TOKEN from the environment (scopes chat:write, chat:write.public, im:write) — that env var must be present in every runner alongside the connectors below, or the skills' delivery steps fail loudly. URLs below are the connector endpoints as used in Acme's Claude setup; auth for each is configured per that connector's OAuth/token flow. NOTE: not every skill needs every connector. acme-call-intel uses fireflies + hubspot + atlassian + slack PLUS git push access to this repo (its trackers are CSV files under skills/acme-call-intel/data/, committed by the skill itself — no Sheets connector needed). customer-support-scorecard and acme-ticket-daily-check use ONLY atlassian + slack. pre-call-primer uses microsoft365 + fireflies + hubspot + atlassian + slack PLUS git push access (its per-account memory lives under skills/pre-call-primer/data/).",
+  "mcpServers": {
+    "fireflies": {
+      "type": "url",
+      "url": "https://api.fireflies.ai/mcp",
+      "_auth": "Fireflies API token (env: FIREFLIES_TOKEN)"
+    },
+    "hubspot": {
+      "type": "url",
+      "url": "https://mcp.hubspot.com/anthropic",
+      "_auth": "HubSpot OAuth (env: HUBSPOT_TOKEN)"
+    },
+    "atlassian": {
+      "type": "url",
+      "url": "https://mcp.atlassian.com/v1/mcp",
+      "_auth": "Atlassian OAuth; cloudId CLOUD_ID"
+    },
+    "slack": {
+      "type": "url",
+      "url": "https://mcp.slack.com/mcp",
+      "_auth": "Slack OAuth (env: SLACK_TOKEN) — the CEO's user account. READS ONLY: channel history, threads, user profiles, search. Every Slack WRITE goes through the @bot app instead (bot token in env SLACK_BOT_TOKEN, called directly against the Slack Web API) so automation output is not authored by a person. See contracts/slack-dispatch.md; the skills' write steps never call slack_send_message / slack_schedule_message."
+    },
+    "microsoft365": {
+      "type": "url",
+      "url": "https://mcp.microsoft365.example/mcp",
+      "_auth": "Microsoft 365 connector OAuth — needs Outlook calendar read + mail read scopes (pre-call-primer only). In Claude Code routines/desktop this is the built-in Microsoft 365 connector; replace the URL with the real endpoint from that connector's config."
+    }
+  }
+}
